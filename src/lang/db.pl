@@ -39,13 +39,13 @@
 		'List of named graphs that should initially by erased.').
 
 %%
-:- multifile collection_name/1.
-
-%%
 annotation_property('http://www.w3.org/2000/01/rdf-schema#comment').
 annotation_property('http://www.w3.org/2000/01/rdf-schema#seeAlso').
 annotation_property('http://www.w3.org/2000/01/rdf-schema#label').
 annotation_property('http://www.w3.org/2002/07/owl#versionInfo').
+
+collection_name(Name) :-
+	mng_db_name(DB), mng_collections(DB, Collections), !, member(Name, Collections).
 
 %% remember(+Directory) is det.
 %
