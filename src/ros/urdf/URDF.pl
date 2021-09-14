@@ -91,32 +91,33 @@ urdf_init(Object,_) :-
 	!.
 
 urdf_init(Object,Identifier) :-
-	urdf_server(DATA_URL),
-	atomic_list_concat([Identifier,urdf],'.',Filename),
-	path_concat(DATA_URL,Filename,URL),
-	% get XML data
-	(	http_get(URL,XML_data,[]) -> true
-	;	(	log_warn(urdf(download_failed(Object,URL))),
-			fail
-		)
-	),
-	% parse data
-	(	urdf_load_xml(Object,XML_data) -> true
-	;	(	log_warn(urdf(parsing_failed(Object,URL))),
-			fail
-		)
-	),
-	% create has_urdf facts
-	forall(
-		(	Y=Object
-		;	kb_call(triple(Object,transitive(dul:hasComponent),Y))
-		),
-		(	has_urdf(Y,Object) -> true
-		;	assertz(has_urdf(Y,Object))
-		)
-	),
-	log_info(urdf(initialized(Object,Identifier))),
-	!.
+	% urdf_server(DATA_URL),
+	% atomic_list_concat([Identifier,urdf],'.',Filename),
+	% path_concat(DATA_URL,Filename,URL),
+	% % get XML data
+	% (	http_get(URL,XML_data,[]) -> true
+	% ;	(	log_warn(urdf(download_failed(Object,URL))),
+	% 		fail
+	% 	)
+	% ),
+	% % parse data
+	% (	urdf_load_xml(Object,XML_data) -> true
+	% ;	(	log_warn(urdf(parsing_failed(Object,URL))),
+	% 		fail
+	% 	)
+	% ),
+	% % create has_urdf facts
+	% forall(
+	% 	(	Y=Object
+	% 	;	kb_call(triple(Object,transitive(dul:hasComponent),Y))
+	% 	),
+	% 	(	has_urdf(Y,Object) -> true
+	% 	;	assertz(has_urdf(Y,Object))
+	% 	)
+	% ),
+	% log_info(urdf(initialized(Object,Identifier))),
+	% !.
+	urdf_load(Object, Identifier).	% For offline URDF files, identifier is a local path.
 
 %% urdf_load(+Object,+File) is semidet.
 %
@@ -143,7 +144,7 @@ urdf_load(Object,File) :-
 urdf_load(Object,URL,Options) :-
 	(	url_resolve(URL,Resolved)
 	->	true
-	;	Resolved=URL 
+	;	Resolved=URL
 	),
 	urdf_load_file(Object,Resolved),
 	% create IO and IR objects in triple store
@@ -217,7 +218,7 @@ urdf_set_pose(Object,Pose) :-
 	% set pose of other links
 	urdf_link_names(Object,Links),
 	forall(
-		member(LinkName,Links), 
+		member(LinkName,Links),
 		(	LinkName=RootLinkName
 		;	set_link_pose_(Object,Prefix,LinkName)
 		)
@@ -385,7 +386,7 @@ has_parent_link(Joint,Link) ?+>
 
 %%
 % TODO: reconsider this
-% 
+%
 model_SOMA:object_shape(Obj,ShapeID,ShapeTerm,Origin,MaterialTerm) :-
 	object_shape_urdf(Obj,ShapeID,ShapeTerm,Origin,MaterialTerm).
 
