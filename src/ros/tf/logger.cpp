@@ -3,6 +3,8 @@
 #include <knowrob/ros/tf/logger.h>
 #include <knowrob/db/mongo/MongoInterface.h>
 
+#include <ros/console.h>
+
 TFLogger::TFLogger(
 		ros::NodeHandle &node,
 		TFMemory &memory,
@@ -16,6 +18,7 @@ TFLogger::TFLogger(
 		subscriber_static_(node.subscribe("tf_static", 1000, &TFLogger::callback, this)),
 		subscriber_(node.subscribe(topic, 1000, &TFLogger::callback, this))
 {
+	ROS_ERROR("TFLogger::TFLogger");
 }
 
 TFLogger::~TFLogger()

@@ -4,9 +4,11 @@
 #include <knowrob/ros/tf/publisher.h>
 #include <knowrob/ros/tf/republisher.h>
 
+#include <ros/console.h>
+
 static ros::NodeHandle node;
 static TFMemory memory;
-static TFPublisher pub(memory);
+static TFPublisher *tf_publisher=NULL;
 static TFLogger *tf_logger=NULL;
 
 // TF logger parameter
@@ -68,6 +70,7 @@ PREDICATE(tf_logger_enable, 0) {
 		delete tf_logger;
 	}
 
+	ROS_INFO("Enabling TF logger");
 	tf_logger = new TFLogger(node,memory);
 	tf_logger->set_db_name(logger_db_name);
 	tf_logger->set_time_threshold(time_threshold);
@@ -78,12 +81,35 @@ PREDICATE(tf_logger_enable, 0) {
 
 // tf_logger_disable
 PREDICATE(tf_logger_disable, 0) {
+	ROS_INFO("Disabling TF logger");
 	if(tf_logger) {
 		delete tf_logger;
 		tf_logger = NULL;
 	}
 	return true;
 }
+
+// tf_publisher_enable
+PREDICATE(tf_publisher_enable, 0) {
+	if(tf_publisher) {
+		delete tf_publisher;
+	}
+
+	ROS_INFO("Enabling TF publisher");
+	tf_publisher = new TFPublisher(memory);
+	return true;
+}
+
+// tf_publisher_disable
+PREDICATE(tf_publisher_disable, 0) {
+	ROS_INFO("Disabling TF publisher");
+	if(tf_publisher) {
+		delete tf_publisher;
+		tf_publisher = NULL;
+	}
+	return true;
+}
+
 
 // tf_logger_set_db_name(DBName)
 PREDICATE(tf_logger_set_db_name, 1) {

@@ -12,7 +12,9 @@
 	  tf_republish_set_realtime_factor/1,
 	  tf_republish_clear/0,
 	  tf_logger_enable/0,
-	  tf_logger_disable/0
+	  tf_logger_disable/0,
+	  tf_publisher_enable/0,
+	  tf_publisher_disable/0
 	]).
 
 :- use_foreign_library('libtf_knowrob.so').
@@ -39,6 +41,8 @@
 % define some settings
 :- setting(use_logger, boolean, true,
 	'Toggle whether TF messages are logged into the mongo DB.').
+:- setting(use_publisher, boolean, false,
+	'Toggle whether TF is broadcasted').
 
 %%
 :-	mng_db_name(DB),
@@ -133,6 +137,17 @@ tf_republish_load_transforms(Time) :-
 % Deactivate the TF logger.
 %
 
+%% tf_publisher_enable is det.
+%
+% Activate the TF publisher.
+%
+
+%% tf_publisher_disable is det.
+%
+% Deactivate the TF publisher.
+%
+
+
 %% tf_mem_clear is det.
 %
 % Reset the TF memory.
@@ -176,7 +191,7 @@ tf_get_pose(Obj,[RefFrame,Pos,Rot]) :-
 %% tf_get_pose(+Obj, ?PoseQuery, +QueryScope, +FactScope) is semidet.
 %
 % Retrieve the pose of an object.
-% The pose can be requested in a specific reference frame. 
+% The pose can be requested in a specific reference frame.
 %
 tf_get_pose(Obj,PoseQuery,QS,FS) :-
 	rdf_split_url(_,ObjFrame,Obj),
@@ -190,7 +205,7 @@ tf_get_pose(Obj,PoseQuery,QS,FS) :-
 	-> scope_intersect(FS0,FS1,FS)
 	;  fail
 	).
-  
+
 %%
 is_at_direct(ObjFrame,PoseData,QS,FS) :-
 	% get local pose data and scope
@@ -221,10 +236,10 @@ is_at_direct(ObjFrame,PoseData,QS,FS) :-
 	%        filter to only follow the one path (even possible?)
 	%        but if possible it would safe a lot IO here.
 	%        - or change datamodel to include this info in each document
-	% 
+	%
 	tf_mng_lookup(ObjFrame,QSince0,QUntil0,PoseData,FSince,FUntil),
 	time_scope(=(FSince),=(FUntil),FS).
-  
+
 %%
 is_at_indirect(ObjFrame,PoseQuery,DirectPose,QS,FS) :-
 	% get object pose in world frame
@@ -239,7 +254,7 @@ is_at_indirect1(_ObjFrame,
 	% pose was requested in world frame
 	T_query = T0,
 	Q_query = Q0.
-	
+
 is_at_indirect1(ObjFrame,
 		[RefFrame_query,T_query,Q_query],
 		[WorldFrame,T0,Q0],
@@ -248,7 +263,7 @@ is_at_indirect1(ObjFrame,
 	world_pose(RefFrame_query,WorldFrame,
 		[WorldFrame,T1,Q1],
 		QS, FS1),
-	% 
+	%
 	scope_intersect(FS0,FS1,FS),
 	% compute transform from requested frame
 	% to object frame
