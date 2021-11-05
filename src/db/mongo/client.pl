@@ -372,7 +372,7 @@ mng_dump_collection(DB,Collection,Directory) :-
 mng_restore(_DB,Dir) :-
 	mng_uri(URI),
 	process_create(path(mongorestore),
-		[ '--uri', URI, '--dir', Dir ],
+		[ '--uri', URI, '--dir', Dir , '--drop'],
 		[ process(PID) ]
 	),
 	wait(PID,exited(0)).
