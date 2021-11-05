@@ -381,8 +381,8 @@ mng_restore(_DB,Dir) :-
 mng_restore(_DB,Dir,Output) :-
 	mng_uri(URI),
 	process_create(path(mongorestore),
-		[ '--uri', URI, '--dir', Dir ],
-		[ process(PID), stderr(pipe(StdErrStream)) ]
+		[ '--uri', URI, '--dir', Dir , '--drop'],
+		[ process(PID) ]
 	),
 	read_lines(StdErrStream, Output),
 	wait(PID,exited(0)).	
