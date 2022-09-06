@@ -24,6 +24,8 @@ class TFMemory
 public:
 	TFMemory();
 
+	~TFMemory();
+
 	/**
 	 * True if a transform with given frame was added before.
 	 */
@@ -78,7 +80,7 @@ public:
 
 protected:
 	std::set<std::string> managed_frames_[2];
-	std::map<std::string, geometry_msgs::TransformStamped> transforms_[2];
+	std::vector<std::map<std::string, geometry_msgs::TransformStamped>>transforms_;
 	std::mutex transforms_lock_;
 	std::mutex names_lock_;
 	int buffer_index_;

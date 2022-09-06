@@ -1,4 +1,6 @@
 #include <knowrob/ros/tf/memory.h>
+#include <iostream>
+
 
 static inline double get_stamp(const geometry_msgs::TransformStamped &ts)
 {
@@ -15,8 +17,10 @@ static geometry_msgs::TransformStamped far_away;
 #endif
 
 TFMemory::TFMemory() :
-		buffer_index_(0)
+		buffer_index_(0),
+		transforms_(2)
 {
+	std::cout << "TFMemory: Constructor called!" << std::endl;
 #ifdef SEND_UNKNOWN_FAR_AWAY
 	far_away.transform.translation.x = 99999.9;
 	far_away.transform.translation.y = 99999.9;
@@ -29,8 +33,15 @@ TFMemory::TFMemory() :
 #endif
 }
 
+TFMemory::~TFMemory()
+{
+	std::cout << "TFMemory: Destructor called!" << std::endl;
+}
+
+
 bool TFMemory::has_transform(const std::string &frame) const
 {
+	std::cout << "buffer_index_: " << buffer_index_ << ", len(transforms_): " << transforms_.size() << std::endl;
 	return transforms_[buffer_index_].find(frame) != transforms_[buffer_index_].end();
 }
 
@@ -93,6 +104,7 @@ bool TFMemory::loadTF(tf::tfMessage &tf_msg, bool clear_memory)
 		// ping-pong. pong buffer can then be used without lock.
 		// and other threads start writing into ping buffer.
 		buffer_index_ = (pong==0 ? 1 : 0);
+		std::cout << "Set buffer index to " << buffer_index_ << std::endl;
 		// load transforms without locking
 		loadTF_internal(tf_msg,pong);
 		// clear the pong buffer
