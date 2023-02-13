@@ -376,13 +376,14 @@ mng_dump_collection(DB,Collection,Directory) :-
 % @param Directory absolute path to output directory
 %
 mng_restore(_DB,Dir) :-
+	format('mng_restore:~w, ~w~n',[_DB,Dir]),
 	mng_restore(_,Dir,_).
 
 mng_restore(_DB,Dir,Output) :-
 	mng_uri(URI),
 	process_create(path(mongorestore),
 		[ '--uri', URI, '--dir', Dir , '--drop'],
-		[ process(PID) ]
+		[ process(PID), stderr(pipe(StdErrStream))]
 	),
 	read_lines(StdErrStream, Output),
 	wait(PID,exited(0)).	

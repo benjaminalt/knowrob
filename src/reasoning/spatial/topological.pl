@@ -1,5 +1,6 @@
 :- module(spatial_topogical,
-    [ shape_contains(r,r) %-> knowrob:isInsideOf
+    [ shape_contains(r,r), %-> knowrob:isInsideOf
+      shape_contains(r,r,r)
     ]).
 /** <module> Inferring relations of the Dimensionally Extended nine-Intersection Model (DE-9IM).
 
@@ -26,11 +27,15 @@
 % @param OuterObj Identifier of the outer Object
 %
 shape_contains(InnerObj, OuterObj) :-
+  current_scope(QS),
+  shape_contains(InnerObj, OuterObj, QS).
+
+shape_contains(InnerObj, OuterObj, QS) :-
   ground(InnerObj),
   ground(OuterObj),
-  % FIXME: hardcoded map
-  is_at(InnerObj, [map, [IX,IY,IZ], _]),
-  is_at(OuterObj, [map, [OX,OY,OZ], _]),
+  % FIXME: hardcoded world
+  tf_get_pose(InnerObj, [world, [IX,IY,IZ], _], QS, _),
+  tf_get_pose(OuterObj, [world, [OX,OY,OZ], _], QS, _),
   InnerObj \== OuterObj,
   %
   object_dimensions(InnerObj, ID, IW, IH),

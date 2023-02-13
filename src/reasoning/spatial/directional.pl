@@ -1,8 +1,12 @@
 :- module(spatial_directional,
     [ is_ontop_of(r,r)     %-> knowrob:isOntopOf
+	, is_ontop_of(r,r,r)
     , is_below_of(r,r)     %-> knowrob:isBelowOf
+	, is_below_of(r,r,r)
     , is_above_of(r,r)     %-> knowrob:isAboveOf
+	, is_above_of(r,r,r)
     , is_centered_at(r,r)  %-> knowrob:isInCenterOf
+	, is_centered_at(r,r,r)
     %, is_infront_of(r,r)   -> knowrob:isInFrontOf
     %, is_right_of(r,r)     -> knowrob:isRightOf
     %, is_left_of(r,r)      -> knowrob:isLeftOf
@@ -25,11 +29,15 @@
 % @param Bottom Identifier of the lower Object
 %
 is_ontop_of(Top, Bottom) :-
+	current_scope(QS),
+	is_ontop_of(Top, Bottom, QS).
+
+is_ontop_of(Top, Bottom, QS) :-
 	ground(Top),
 	ground(Bottom),
-	% FIXME: hardcoded map
-	is_at(Top,    [map, [_,_,TZ], _]),
-	is_at(Bottom, [map, [_,_,BZ], _]),
+	% FIXME: hardcoded world
+	tf_get_pose(Top,    [world, [_,_,TZ], _], QS, _),
+	tf_get_pose(Bottom, [world, [_,_,BZ], _], QS, _),
 	Top \== Bottom,
 	% the criterion is if the difference between them is less than epsilon=5cm
 	Dist is TZ-BZ,
@@ -47,11 +55,15 @@ is_ontop_of(Top, Bottom) :-
 % @param Bottom Identifier of the lower Object
 %
 is_above_of(Top, Bottom) :-
+	current_scope(QS),
+	is_above_of(Top, Bottom, QS).
+
+is_above_of(Top, Bottom, QS) :-
 	ground(Top),
 	ground(Bottom),
-	% FIXME: hardcoded map
-	is_at(Top,    [map, [_,_,TZ], _]),
-	is_at(Bottom, [map, [_,_,BZ], _]),
+	% FIXME: hardcoded world
+	tf_get_pose(Top,    [world, [_,_,TZ], _], QS, _),
+	tf_get_pose(Bottom, [world, [_,_,BZ], _], QS, _),
 	Top \== Bottom,
 	<( BZ, TZ).
 
@@ -68,6 +80,9 @@ is_above_of(Top, Bottom) :-
 is_below_of(Bottom, Top) :-
 	is_above_of(Top, Bottom).
 
+is_below_of(Bottom, Top, QS) :-
+	is_above_of(Top, Bottom, QS).
+
 %% is_centered_at(?Inner, ?Outer) is nondet.
 %
 % Check if Inner is in the center of OuterObj. Currently does not take the orientation
@@ -80,11 +95,15 @@ is_below_of(Bottom, Top) :-
 % @param Outer Identifier of the outer Object
 %
 is_centered_at(Inner, Outer) :-
+	current_scope(QS),
+	is_centered_at(Inner, Outer, QS).
+
+is_centered_at(Inner, Outer, QS) :-
 	ground(Inner),
 	ground(Outer),
-	% FIXME: hardcoded map
-	is_at(Inner, [map, [IX,IY,IZ], _]),
-	is_at(Outer, [map, [OX,OY,OZ], _]),
+	% FIXME: hardcoded world
+	tf_get_pose(Inner, [world, [IX,IY,IZ], _], QS, _),
+	tf_get_pose(Outer, [world, [OX,OY,OZ], _], QS, _),
 	Inner \== Outer,
 	% less than 20cm x/y/z diff
 	=<( abs( IX - OX), 0.20),
